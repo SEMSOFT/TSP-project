@@ -189,7 +189,7 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
             order.push_back(cur);
         }
         else {
-            cout << "YOUR CODE HAVE BUUUUG!";
+            cout << "YOUR CODE HAS BUUUUG!";
         }
     }
 
@@ -203,18 +203,18 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     if(X.size() == 3){
         if(distances[tour[last].first] > distances[tour[last].second]){
             tmp.push_back(tour[last].first);
-            tmp.push_back(tour[last].second); // IS THIS TRUE?
+            // tmp.push_back(tour[last].second); // IS THIS TRUE?
         }
         else{
             tmp.push_back(tour[last].second);
-            tmp.push_back(tour[last].first); // IS THIS TRUE?
+            // tmp.push_back(tour[last].first); // IS THIS TRUE?
         }
     } else{
         tmp.push_back(tour[last].first);
         tmp.push_back(tour[last].second);
     }
 
-    for(int i = 0; i < 2; i++){
+    for(int i = 0; i < (int)tmp.size(); i++){
         int t2i = tmp[i];
         double Gi = gain + distances[last][t2i];
         pair<int, int> p1 = {last, t2i}, p2 = {t2i, last};
@@ -302,7 +302,7 @@ vector<pair<int, int>> init() {
 vector<pair<int, int>> solve(){
     bool improved = true;
     vector<pair<int, int>> tour = init();
-
+    cout << "Init finished!" << endl;
     while(improved){
         improved = improve(tour);
     }

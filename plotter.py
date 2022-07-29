@@ -43,29 +43,31 @@ def calc_dist(u, v):
 test_case_name = input("test_case_file:")
 best_file_name = test_case_name[:-4] + ".opt.tour"
 file_name = "sol_" + test_case_name
+have_opt = int(input("opt solution exists? (0, 1)"))
 
 dim, coords = read_test_case(test_case_name)
-best_lines = read_from_file(best_file_name)
+if have_opt == 1:
+    best_lines = read_from_file(best_file_name)
 our_lines = read_from_file(file_name)
 
 best_weight = 0
 cur_weight = 0
+if have_opt == 1:
+    for i in range(dim):
+        best_weight += calc_dist(
+            coords[int(best_lines[i]) - 1],
+            coords[int(best_lines[(i + 1) % dim]) - 1]
+        )
+        cur_weight += calc_dist(
+            coords[int(our_lines[i + 1])],
+            coords[int(our_lines[(i + 1) % dim + 1])]
+        )
 
-for i in range(dim):
-    best_weight += calc_dist(
-        coords[int(best_lines[i]) - 1],
-        coords[int(best_lines[(i + 1) % dim]) - 1]
-    )
-    cur_weight += calc_dist(
-        coords[int(our_lines[i + 1])],
-        coords[int(our_lines[(i + 1) % dim + 1])]
-    )
 
-
-print(cur_weight)
 print("Our tour weight: ", our_lines[0])
-print("Best tour weight: ", best_weight)
-print("ratio: ", our_lines[0] / best_weight)
+if have_opt == 1:
+    print("Best tour weight: ", best_weight)
+    print("ratio: ", our_lines[0] / best_weight)
 
 points = np.zeros((dim + 1, 2), float)
 
