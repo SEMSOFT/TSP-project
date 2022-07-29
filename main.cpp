@@ -5,21 +5,21 @@
 
 using namespace std;
 
-vector <vector<double>> distance;
+vector <vector<double>> distances;
 int dimension;
 string file_name, junk;
 string test_name, weight_type;
-vector pair<double, double> coords;
+vector <pair<double, double>> coords;
 
-void calc_euc_distance() {
+void calc_euc_distances() {
     for (int i = 0; i < dimension; i++) {
         vector <double> dists;
         for (int j = 0; j < i; j++)
-            dists.push_back(distance[j][i]);
+            dists.push_back(distances[j][i]);
         dists.push_back(0);
         for (int j = i + 1; j < dimension; j++) {
-            double dist = (coords[i][0] - coords[j][0]) * (coords[i][0] - coords[j][0])
-                            + (coords[i][1] - coords[j][1]) * (coords[i][1] - coords[j][1]);
+            double dist = (coords[i].first - coords[j].first) * (coords[i].first - coords[j].first)
+                            + (coords[i].second - coords[j].second) * (coords[i].second - coords[j].second);
             dists.push_back(sqrt(dist));
         }
     }
@@ -49,7 +49,7 @@ void read_file(string file_name) {
     }
 
     if (weight_type == "EUC_2D")
-        calc_euc_distance();
+        calc_euc_distances();
 
 }
 
