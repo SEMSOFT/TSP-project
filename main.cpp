@@ -309,8 +309,11 @@ vector<pair<int, int>> solve(){
 void save(vector<pair<int, int>>& tour) {
     ofstream output_file("SOL_" + file_name);
     double w = 0;
-    for (int i = 0; i < dimension; i++)
-        w += distances[i][tour[i].second];
+    for (int i = 0; i < dimension; i++) {
+        double di = (coords[i].first - coords[tour[i].second].first) * (coords[i].first - coords[tour[i].second].first)
+                  + (coords[i].second - coords[tour[i].second].second) * (coords[i].second - coords[tour[i].second].second);
+        w += sqrt(di);
+    }
     output_file << w << '\n';
     int cur = 0;
     for (int i = 0; i < dimension; i++) {
