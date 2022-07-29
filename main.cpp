@@ -14,6 +14,64 @@ vector<int> pi;
 vector <pair<double, double>> coords;
 vector<vector<int>> nearest;
 
+int my_counter;
+
+void check_tour(int v, bool* mark, vector<vector<int>>& node) {
+    mark[v] = true;
+    my_counter++;
+    if (!mark[node[v][0]])
+        check_tour(node[v][0], mark, node);
+    if (!mark[node[v][1]])
+        check_tour(node[v][1], mark, node);
+}
+
+bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y) {
+    my_counter = 0;
+    vector<vector<int>> node;
+    for (int i = 0; i < dimension; i++) {
+        vector<int> adj;
+        adj.push_back(tour[i].first);
+        adj.push_back(tour[i].second);
+        node.push_back(adj);
+    }
+    set<pair<int, int>>::iterator it;
+    for (it = X.begin(); it != X.end(); ++it) {
+        pair <int, int> e = *it;
+        for (int i = 0; i < (int)node[e.first].size(); i++) {
+            if (node[e.first][i] == e.second) {
+                swap(node[e.first][i], node[e.first][node[e.first].size() - 1]);
+                node[e.first].pop_back();
+                break;
+            }
+        }
+
+        for (int i = 0; i < (int)node[e.second].size(); i++) {
+            if (node[e.second][i] == e.first) {
+                swap(node[e.second][i], node[e.second][node[e.second].size() - 1]);
+                node[e.second].pop_back();
+                break;
+            }
+        }
+    }
+
+    for (it = Y.begin(); it != Y.end(); ++it) {
+        pair <int, int> e = *it;
+        node[e.first].push_back(e.second);
+        node[e.second].push_back(e.first);
+    }
+
+    for (int i = 0; i < dimension; i++) {
+        if (node[i].size() != 2)
+            return false;
+    }
+
+    bool mark[dimension];
+    memset(mark, 0, sizeof(mark));
+    check_tour(0, mark, node);
+
+    return my_counter == dimension;
+}
+
 void calc_euc_distances() {
     for (int i = 0; i < dimension; i++) {
         vector <double> dists;
