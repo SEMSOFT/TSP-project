@@ -90,6 +90,7 @@ void calc_euc_distances() {
 }
 
 void read_file(string file_name) {
+    cout << "reading the file..." << endl;
     ifstream input_file(file_name);
     input_file >> junk;
     input_file >> test_name;
@@ -135,6 +136,7 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
 }
 
 void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){ // not effiecient
+    cout << "found an improvement!" << endl;
     my_counter = 0;
     vector<vector<int>> node;
     for (int i = 0; i < dimension; i++) {
@@ -195,6 +197,13 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
 
     for (int i = 0; i < dimension; i++)
         tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
+
+    double sum = 0;
+    for(int i = 0; i < (int)tour.size(); i++){
+        sum += distances[i][tour[i].first];
+        sum += distances[i][tour[i].second];
+    }
+    cout << "weight of new tour: " << sum / 2 << endl;
 }
 
 
@@ -268,7 +277,9 @@ bool improve(vector<pair<int, int>> &tour){
 }
 
 vector<pair<int, int>> init() {
+    cout << "edge transforming" << endl;
     pi = edge_transform(distances);
+
     for (int i = 0; i < dimension; i++) {
         for (int j = 0; j < dimension; j++) {
             if (i != j)
@@ -276,6 +287,7 @@ vector<pair<int, int>> init() {
         }
     }
 
+    cout << "computing alpha nearness" << endl;
     get_a_nearness(distances, 1);
 
     for (int i = 0; i < dimension; i++) {
@@ -296,6 +308,8 @@ vector<pair<int, int>> init() {
         nearest.push_back(nears);
     }
 
+    cout << "constructing the initialize tour" << endl;
+
     return get_farthest_insertion_tour(distances);
 }
 
@@ -303,6 +317,7 @@ vector<pair<int, int>> solve(){
     bool improved = true;
     vector<pair<int, int>> tour = init();
 
+    cout << "start to improve" << endl;
     while(improved){
         improved = improve(tour);
     }
@@ -310,6 +325,7 @@ vector<pair<int, int>> solve(){
 }
 
 void save(vector<pair<int, int>>& tour) {
+    cout << "saving the tour" << endl;
     ofstream output_file("sol_" + file_name);
     double w = 0;
     for (int i = 0; i < dimension; i++) {
