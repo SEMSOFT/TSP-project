@@ -128,6 +128,7 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
             if(check){
                 return true;
             }
+            Y.erase(p1);
         }
     }
     return false;
@@ -222,6 +223,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
             X.insert(p1);
             Y.insert({t2i, t1});
             if(!is_tour(tour, X, Y)){
+                X.erase(p1);
                 Y.erase({t2i, t1});
                 continue;
             }
@@ -230,6 +232,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
                 return true;
             }
             else{
+                Y.erase({t2i, t1});
                 return chooseY(tour, t1, t2i, Gi, X, Y);
             }
         }
@@ -307,7 +310,7 @@ vector<pair<int, int>> solve(){
 }
 
 void save(vector<pair<int, int>>& tour) {
-    ofstream output_file("SOL_" + file_name);
+    ofstream output_file("sol_" + file_name);
     double w = 0;
     for (int i = 0; i < dimension; i++) {
         double di = (coords[i].first - coords[tour[i].second].first) * (coords[i].first - coords[tour[i].second].first)
