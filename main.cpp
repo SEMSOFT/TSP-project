@@ -116,7 +116,64 @@ void read_file(string file_name) {
 
 }
 
-bool chooseX(vector<pair<int, int>> &tour, int fs, int last, double gain, set<pair<int, int>> X, set<pair<int, int>> Y){}
+bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y);
+
+bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
+    for(int t2i1: nearest[last]){
+        double Gi = gain - distances[last][t2i1];
+        pair<int, int> p1 = {last, t2i1}, p2 = {t2i1, last};
+        if(t2i1 != t1 && !X.contains(p1) && !X.contains(p2) && !Y.contains(p1) && !Y.contains(p2)){
+            Y.insert(p1);
+            bool check = chooseX(tour, t1, t2i1, Gi , X, Y);
+            if(check){
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){
+
+}
+
+
+bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
+
+    vector<int> tmp;
+    if(X.size() == 3){
+        if(distances[tour[last].first] > distances[tour[last].second]){
+            tmp.push_back(tour[last].first);
+        }
+        else{
+            tmp.push_back(tour[last].second);
+        }
+    } else{
+        tmp.push_back(tour[last].first);
+        tmp.push_back(tour[last].second);
+    }
+    for(int i = 0; i < 2; i++){
+        int t2i = tmp[i];
+        double Gi = gain + distances[last][t2i];
+        pair<int, int> p1 = {last, t2i}, p2 = {t2i, last};
+        if(t2i != t1 && !X.contains(p1) && !X.contains(p2) && !Y.contains(p1) && !Y.contains(p2)){
+            X.insert(p1);
+            Y.insert({t2i, t1});
+            if(!is_tour(tour, X, Y)){
+                Y.erase({t2i, t1});
+                continue;
+            }
+            if(Gi - distances[t2i][t1] > 0){
+                make_new_tour(tour, X, Y);
+                return true;
+            }
+            else{
+                return chooseY(tour, t1, t2i, Gi, X, Y);
+            }
+        }
+    }
+    return false;
+}
 
 bool improve(vector<pair<int, int>> &tour){
     int n = tour.size();
@@ -126,16 +183,15 @@ bool improve(vector<pair<int, int>> &tour){
             int t2 = tmp[i];
             set<pair<int, int>> X;
             X.insert({t1, t2});
-
-            for(int t3: nearest[t2]){
-                if(t3 == tour[t2].first || t3 == tour[t2].second)
+            for(int t3 = 0; t3 < n; t3++){
+                if(t3 == tour[t2].first || t3 == tour[t2].second || t3 == t2)
                     continue;
                 set<pair<int, int>> Y;
                 Y.insert({t2, t3});
                 double gain = distances[t1][t2] - distances[t2][t3];
 
                 if(gain > 0){
-                    if chooseX(tour, t1, t3, gain, X, Y){
+                    if(chooseX(tour, t1, t3, gain, X, Y)){
                         return true;
                     }
                 }
