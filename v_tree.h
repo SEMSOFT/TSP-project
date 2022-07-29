@@ -57,8 +57,8 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances){
 }
 
 
-vector<int>* get_v_tree(int v, vector<vector<double>> &distances) {
-    vector<int>* tree = prim(v, distances);
+vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances) {
+    vector<vector<int>> tree = prim(v, distances);
     double mn[2] = {1e18, 1e18};
     int ind[2];
     int n = distances.size();
