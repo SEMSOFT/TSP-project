@@ -6,7 +6,7 @@ using namespace std;
 
 vector<vector<int>> subtree;
 
-void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* dp, vector<int>* node) {
+void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* dp, vector<vector<int>>& node) {
     subtree[v].push_back(v);
     for (auto u: node[v]) {
         if (u != par && u != vroot) {
@@ -38,7 +38,8 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
 }
 
 void get_a_nearness(vector<vector<double>>& distances, int v) {
-    vector<int>* node = get_v_tree(distances, v);
+    subree.clear();
+    vector<vector<int>> node = get_v_tree(v, distances);
     // edges: the edge set of minimum v-tree
     double mx = 0;
     int dim = distances.size();
