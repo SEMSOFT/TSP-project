@@ -6,6 +6,8 @@
 
 using namespace std;
 
+const int K_NEAREST = 5;
+
 vector <vector<double>> distances;
 int dimension;
 string file_name, junk;
@@ -152,6 +154,25 @@ vector<pair<int, int>> init() {
         }
     }
     get_a_nearness(distances, 1);
+
+    for (int i = 0; i < dimension; i++) {
+        vector<int> nears;
+        for (int j = 0; j < dimension; j++) {
+            if (i == j) {
+                continue;
+            }
+            nears.push_back(j);
+            for (int k = (int)nears.size() - 1; k; k--) {
+                if (distances[i][nears[k]] >= distances[i][nears[k - 1]])
+                    break;
+                swap(nears[k - 1], nears[k]);
+            }
+            if (nears.size() > K_NEAREST)
+                nears.pop_back();
+        }
+        nearest[i] = nears;
+    }
+
     return get_farthest_insertion_tour(distances);
 }
 
