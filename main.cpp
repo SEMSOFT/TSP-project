@@ -11,6 +11,7 @@ int dimension;
 string file_name, junk;
 string test_name, weight_type;
 vector <pair<double, double>> coords;
+vector<vector<int>> nearest;
 
 void calc_euc_distances() {
     for (int i = 0; i < dimension; i++) {
@@ -54,17 +55,33 @@ void read_file(string file_name) {
 
 }
 
+bool chooseX(vector<pair<int, int>> &tour, int fs, int last, double gain, set<pair<int, int>> X, set<pair<int, int>> Y){}
+
 bool improve(vector<pair<int, int>> &tour){
     int n = tour.size();
     for(int t1 = 0; t1 < n; t1++){
         int tmp[2] = {tour[t1].first, tour[t1].second};
         for(int i = 0; i < 2; i++){
             int t2 = tmp[i];
+            set<pair<int, int>> X;
+            X.insert({t1, t2});
 
+            for(int t3: nearest[t2]){
+                if(t3 == tour[t2].first || t3 == tour[t2].second)
+                    continue;
+                set<pair<int, int>> Y;
+                Y.insert({t2, t3});
+                double gain = distances[t1][t2] - distances[t2][t3];
 
-
+                if(gain > 0){
+                    if chooseX(tour, t1, t3, gain, X, Y){
+                        return true;
+                    }
+                }
+            }
         }
     }
+    return false;
 }
 
 
