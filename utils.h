@@ -139,7 +139,7 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
         if (repeats == period_length) {
             step_size /= 2;
             period_length /= 2;
-            repeats = period_length;
+            repeats = 0;
             first_period = false;
         }
     }
@@ -226,7 +226,9 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
 
 void get_a_nearness(vector<vector<double>>& distances, int v) {
     subtree.clear();
+
     vector<vector<int>> node = get_v_tree(v, distances);
+
     // edges: the edge set of minimum v-tree
     double mx = 0;
     int dim = distances.size();
@@ -248,7 +250,7 @@ void get_a_nearness(vector<vector<double>>& distances, int v) {
 
     for (int i = 0; i < dim; i++) {
         vector<int> vec;
-        subtree[i] = vec;
+        subtree.push_back(vec);
     }
 
     dfs(node[v][0], v, distances, v, dp, node);

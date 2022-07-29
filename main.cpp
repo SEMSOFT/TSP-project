@@ -198,23 +198,26 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
 
 
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
-
     vector<int> tmp;
     if(X.size() == 3){
         if(distances[tour[last].first] > distances[tour[last].second]){
             tmp.push_back(tour[last].first);
+            tmp.push_back(tour[last].second); // IS THIS TRUE?
         }
         else{
             tmp.push_back(tour[last].second);
+            tmp.push_back(tour[last].first); // IS THIS TRUE?
         }
     } else{
         tmp.push_back(tour[last].first);
         tmp.push_back(tour[last].second);
     }
+
     for(int i = 0; i < 2; i++){
         int t2i = tmp[i];
         double Gi = gain + distances[last][t2i];
         pair<int, int> p1 = {last, t2i}, p2 = {t2i, last};
+
         if(t2i != t1 && !X.contains(p1) && !X.contains(p2) && !Y.contains(p1) && !Y.contains(p2)){
             X.insert(p1);
             Y.insert({t2i, t1});
@@ -242,6 +245,7 @@ bool improve(vector<pair<int, int>> &tour){
             int t2 = tmp[i];
             set<pair<int, int>> X;
             X.insert({t1, t2});
+
             for(int t3 = 0; t3 < n; t3++){
                 if(t3 == tour[t2].first || t3 == tour[t2].second || t3 == t2)
                     continue;
@@ -268,6 +272,7 @@ vector<pair<int, int>> init() {
                 distances[i][j] += pi[i] + pi[j];
         }
     }
+
     get_a_nearness(distances, 1);
 
     for (int i = 0; i < dimension; i++) {
@@ -285,7 +290,7 @@ vector<pair<int, int>> init() {
             if (nears.size() > K_NEAREST)
                 nears.pop_back();
         }
-        nearest[i] = nears;
+        nearest.push_back(nears);
     }
 
     return get_farthest_insertion_tour(distances);
@@ -294,6 +299,7 @@ vector<pair<int, int>> init() {
 vector<pair<int, int>> solve(){
     bool improved = true;
     vector<pair<int, int>> tour = init();
+
     while(improved){
         improved = improve(tour);
     }
@@ -317,7 +323,7 @@ int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
     read_file(file_name);
-	// vector<pair<int, int>> tour = solve();
-    // save(tour);
+	vector<pair<int, int>> tour = solve();
+    save(tour);
     return 0;
 }
