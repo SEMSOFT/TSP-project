@@ -54,9 +54,34 @@ void read_file(string file_name) {
 
 }
 
+bool improve(vector<pair<int, int>> &tour){
+    int n = tour.size();
+    for(int t1 = 0; t1 < n; t1++){
+        int tmp[2] = {tour[t1].first, tour[t1].second};
+        for(int i = 0; i < 2; i++){
+            int t2 = tmp[i];
+
+
+
+        }
+    }
+}
+
+
+vector<pair<int, int>> solve(){
+    bool improved = true;
+    vector<pair<int, int>> tour = init();
+    while(improved){
+        improved = improve(tour);
+    }
+    return tour;
+}
+
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
     read_file(file_name);
-	return 0;
+	vector<pair<int, int>> tour = solve();
+    save(tour);
+    return 0;
 }
