@@ -2,6 +2,7 @@
 // #pragma GCC optimize ("unroll-loops")
 // #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 #include <bits/stdc++.h>
+#include "v_tree.h"
 
 using namespace std;
 
@@ -54,6 +55,7 @@ void read_file(string file_name) {
 }
 
 int main() {
+    cout << f() << endl;
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
     read_file(file_name);
