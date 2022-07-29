@@ -2,7 +2,7 @@
 // #pragma GCC optimize ("unroll-loops")
 // #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
 #include <bits/stdc++.h>
-#include "v_tree.h"
+#include "utils.h"
 
 using namespace std;
 
@@ -10,6 +10,7 @@ vector <vector<double>> distances;
 int dimension;
 string file_name, junk;
 string test_name, weight_type;
+vector<int> pi;
 vector <pair<double, double>> coords;
 vector<vector<int>> nearest;
 
@@ -84,6 +85,17 @@ bool improve(vector<pair<int, int>> &tour){
     return false;
 }
 
+vector<pair<int, int>> init() {
+    pi = edge_transform(distances);
+    for (int i = 0; i < dimension; i++) {
+        for (int j = 0; j < dimension; j++) {
+            if (i != j)
+                distances[i][j] += pi[i] + pi[j];
+        }
+    }
+    get_a_nearness(distances, 1);
+    return get_farthest_insertion_tour(distances);
+}
 
 vector<pair<int, int>> solve(){
     bool improved = true;
@@ -92,6 +104,19 @@ vector<pair<int, int>> solve(){
         improved = improve(tour);
     }
     return tour;
+}
+
+void save(vector<pair<int, int>>& tour) {
+    ofstream output_file("SOL_" + file_name);
+    double w = 0;
+    for (int i = 0; i < dimension; i++)
+        w += distances[i][tour[i].second];
+    output_file << w << '\n';
+    int cur = 0;
+    for (int i = 0; i < dimension; i++) {
+        output_file << cur << '\n';
+        cur = tour[cur].second;
+    }
 }
 
 int main() {
