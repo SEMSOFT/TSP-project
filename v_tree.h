@@ -3,12 +3,17 @@ using namespace std;
 #include <bits/stdc++.h>
 
 
-vector<int>* prim(int v, vector<vector<double>> &distances){
+vector<vector<int>> prim(int v, vector<vector<double>> &distances){
     int n = distances.size();
-    vector<int> mst[n];
+    vector<vector<int>> mst;
     bool mark[n];
     int par[n];
     double mat[n];
+
+    for(int i = 0; i < n; i++){
+        vector<int> tmp;
+        mst.push_back(tmp);
+    }
 
     fill(mat, mat + n, 1e18);
     fill(mark, mark + n, 0);
