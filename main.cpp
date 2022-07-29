@@ -85,6 +85,7 @@ void calc_euc_distances() {
                             + (coords[i].second - coords[j].second) * (coords[i].second - coords[j].second);
             dists.push_back(sqrt(dist));
         }
+        distances.push_back(dists);
     }
 }
 
@@ -113,7 +114,6 @@ void read_file(string file_name) {
 
     if (weight_type == "EUC_2D")
         calc_euc_distances();
-
 }
 
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y);
@@ -133,8 +133,67 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     return false;
 }
 
-void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){
+void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){ // not effiecient
+    my_counter = 0;
+    vector<vector<int>> node;
+    for (int i = 0; i < dimension; i++) {
+        vector<int> adj;
+        adj.push_back(tour[i].first);
+        adj.push_back(tour[i].second);
+        node.push_back(adj);
+    }
+    set<pair<int, int>>::iterator it;
+    for (it = X.begin(); it != X.end(); ++it) {
+        pair <int, int> e = *it;
+        for (int i = 0; i < (int)node[e.first].size(); i++) {
+            if (node[e.first][i] == e.second) {
+                swap(node[e.first][i], node[e.first][node[e.first].size() - 1]);
+                node[e.first].pop_back();
+                break;
+            }
+        }
 
+        for (int i = 0; i < (int)node[e.second].size(); i++) {
+            if (node[e.second][i] == e.first) {
+                swap(node[e.second][i], node[e.second][node[e.second].size() - 1]);
+                node[e.second].pop_back();
+                break;
+            }
+        }
+    }
+
+    for (it = Y.begin(); it != Y.end(); ++it) {
+        pair <int, int> e = *it;
+        node[e.first].push_back(e.second);
+        node[e.second].push_back(e.first);
+    }
+
+    int cur = 0;
+    vector<int> order;
+    order.push_back(0);
+
+    bool mark[dimension];
+    memset(mark, 0, sizeof(mark));
+    mark[0] = true;
+
+    for (int i = 1; i < dimension; i++) {
+        if (!mark[node[cur][0]]) {
+            cur = node[cur][0];
+            mark[cur] = true;
+            order.push_back(cur);
+        }
+        else if (!mark[node[cur][1]]) {
+            cur = node[cur][1];
+            mark[cur] = true;
+            order.push_back(cur);
+        }
+        else {
+            cout << "YOUR CODE HAVE BUUUUG!";
+        }
+    }
+
+    for (int i = 0; i < dimension; i++)
+        tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
 }
 
 
@@ -258,7 +317,7 @@ int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
     read_file(file_name);
-	vector<pair<int, int>> tour = solve();
-    save(tour);
+	// vector<pair<int, int>> tour = solve();
+    // save(tour);
     return 0;
 }
