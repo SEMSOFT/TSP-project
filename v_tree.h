@@ -1,7 +1,6 @@
+#include <vector>
+
 using namespace std;
-
-#include <bits/stdc++.h>
-
 
 vector<vector<int>> prim(int v, vector<vector<double>> &distances){
     int n = distances.size();
