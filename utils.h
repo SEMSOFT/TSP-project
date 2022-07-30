@@ -5,7 +5,7 @@ using namespace std;
 
 vector<vector<int>> subtree;
 
-vector<vector<int>> prim(int v, vector<vector<double>> &distances){
+vector<vector<int>> prim(int v, vector<vector<double>> &distances, vector<int> &pi){
     int n = distances.size();
     vector<vector<int>> mst;
     bool mark[n];
@@ -30,7 +30,7 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances){
     for(int i = 0; i < n; i++){
         if(i != t)
             par[i] = t;
-        mat[i] = distances[t][i];
+        mat[i] = distances[t][i] + pi[t] + pi[i];
     }
 
     for(int i = 0; i < n-2; i++){
@@ -48,9 +48,9 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances){
         mst[par[last]].push_back(last);
 
         for(int j = 0; j < n; j++){
-            if(!mark[j] && distances[last][j] < mat[j]){
+            if(!mark[j] && distances[last][j] + pi[last] + pi[j] < mat[j]){
                 par[j] = last;
-                mat[j] = distances[last][j];
+                mat[j] = distances[last][j] + pi[last] + pi[j];
             }
         }
     }
@@ -59,20 +59,20 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances){
 }
 
 
-vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances) {
-    vector<vector<int>> tree = prim(v, distances);
+vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances, vector<int> &pi ) {
+    vector<vector<int>> tree = prim(v, distances, pi);
     double mn[2] = {1e18, 1e18};
     int ind[2];
     int n = distances.size();
     for(int i = 0; i < n; i++){
         if(i != v){
-            if(distances[v][i] < mn[0]){
-                mn[0] = distances[v][i];
+            if(distances[v][i] + pi[v] + pi[i] < mn[0]){
+                mn[0] = distances[v][i] + pi[v] + pi[i];
                 ind[0] = i;
                 continue;
             }
-            if(distances[v][i] < mn[1]){
-                mn[1] = distances[v][i];
+            if(distances[v][i] + pi[v] + pi[i] < mn[1]){
+                mn[1] = distances[v][i] + pi[v] + pi[i];
                 ind[1] = i;
                 continue;
             }
