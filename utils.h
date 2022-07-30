@@ -84,13 +84,14 @@ vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances) {
     tree[ind[0]].push_back(v);
     tree[ind[1]].push_back(v);
 
-    double sum = 0;
-    for(int i = 0; i < n; i++){
-        for(int j: tree[i]){
-            sum += tree[i][j];
-        }
-    }
-    cout << "weight of " << v << "-tree: " << sum / 2 << endl;
+//    double sum = 0;
+//    for(int i = 0; i < n; i++){
+//        for(int j: tree[i]){
+//            sum += distances[i][j];
+//        }
+//    }
+//    cout << "weight of " << v << "-tree: " << sum / 2 << endl;
+
     return tree;
 }
 
