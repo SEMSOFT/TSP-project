@@ -242,7 +242,11 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
 void get_a_nearness(vector<vector<double>>& distances, int v) {
     subtree.clear();
 
-    vector<vector<int>> node = get_v_tree(v, distances);
+    vector<int> pi;
+    for (int i = 0; i < (int)distances.size(); i++)
+        pi.push_back(0);
+
+    vector<vector<int>> node = get_v_tree(v, distances, pi);
 
     // edges: the edge set of minimum v-tree
     double mx = -1e18;
