@@ -9,6 +9,12 @@ def func(s):
     return float(s.replace("\n", ""))
 
 
+def func2(s):
+    if "EOF" in s:
+        return ""
+    return s.replace("\n", "")
+
+
 def read_from_file(fname):
     f = open(fname, "r")
     lines = f.readlines()
@@ -31,7 +37,7 @@ def read_test_case(fname):
         lines = lines[1:]
     coords = []
     for line in lines:
-        z = func(line).split(" ")
+        z = func2(line).split(" ")
         coords.append((float(z[-2]), float(z[-1])))
     return dim, coords
 
