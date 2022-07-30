@@ -31,7 +31,7 @@ def read_test_case(fname):
         lines = lines[1:]
     coords = []
     for line in lines:
-        z = line.split(" ")
+        z = func(line).split(" ")
         coords.append((float(z[-2]), float(z[-1])))
     return dim, coords
 
