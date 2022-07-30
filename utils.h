@@ -99,11 +99,12 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
     int n = distances.size();
     vector <int> final_pi;
     vector <int> pi;
+    vector <int> grad;
     for (int i = 0; i < n; i++) {
         pi.push_back(0);
         final_pi.push_back(0);
+        grad.push_back(0);
     }
-    int grad[n];
     double w = -1e18;
     double sum_of_pi = 0;
 
@@ -114,9 +115,10 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
     int step_size = 1;
 
     while(!is_tour && step_size && period_length) {
+        cout << step_size << ' ' << period_length << ' ' << repeats << endl;
         is_tour = true;
         double tree_weight = 0;
-        vector<vector<int>> node = get_v_tree(1, distances);
+        vector<vector<int>> node = get_v_tree(1, distances, pi);
         for (int i = 0; i < n; i++) {
             grad[i] = (int)node[i].size() - 2;
             is_tour &= (grad[i] == 0);
@@ -151,6 +153,9 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
             first_period = false;
         }
     }
+    for (int i = 0; i < n; i++)
+        cout << grad[i] << ' ';
+    cout << endl;
 
     return pi;
 }

@@ -1,6 +1,7 @@
 # Prerequisites
 *.d
-
+/ALL_tsp/
+ALL_tsp
 # Compiled Object files
 *.slo
 *.lo
