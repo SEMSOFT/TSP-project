@@ -212,19 +212,11 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     if(X.size() == 3){
         if(distances[tour[last].first] > distances[tour[last].second]){
             tmp.push_back(tour[last].first);
-<<<<<<< HEAD
-            // tmp.push_back(tour[last].second); // IS THIS TRUE?
+//             tmp.push_back(tour[last].second); // IS THIS TRUE?
         }
         else{
             tmp.push_back(tour[last].second);
-            // tmp.push_back(tour[last].first); // IS THIS TRUE?
-=======
 //            tmp.push_back(tour[last].second); // IS THIS TRUE?
-        }
-        else{
-            tmp.push_back(tour[last].second);
-//            tmp.push_back(tour[last].first); // IS THIS TRUE?
->>>>>>> 15afba6ff4993be592eef3b40b38bff43e33a15f
         }
     } else{
         tmp.push_back(tour[last].first);
@@ -324,12 +316,10 @@ vector<pair<int, int>> init() {
 vector<pair<int, int>> solve(){
     bool improved = true;
     vector<pair<int, int>> tour = init();
-<<<<<<< HEAD
-    cout << "Init finished!" << endl;
-=======
 
+    cout << "Init finished!" << endl;
     cout << "start to improve" << endl;
->>>>>>> 15afba6ff4993be592eef3b40b38bff43e33a15f
+
     while(improved){
         improved = improve(tour);
     }
