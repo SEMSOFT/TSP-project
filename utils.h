@@ -197,10 +197,12 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
     subtree[v].push_back(v);
     for (auto u: node[v]) {
         if (u != par && u != vroot) {
-            dfs(u, v, distances, vroot, dp, node);
             double w = distances[v][u];
+            dfs(u, v, distances, vroot, dp, node);
+            dp[u] = w;
             for (auto p: subtree[u]) {
-                dp[p] = max(dp[p], w);
+                if (p != u)
+                    dp[p] = max(dp[p], w);
                 distances[v][p] -= dp[p];
                 distances[p][v] -= dp[p];
             }
@@ -230,7 +232,7 @@ void get_a_nearness(vector<vector<double>>& distances, int v) {
     vector<vector<int>> node = get_v_tree(v, distances);
 
     // edges: the edge set of minimum v-tree
-    double mx = 0;
+    double mx = -1e18;
     int dim = distances.size();
 
     // calculate a_nearness for edges of the format (v, .)
