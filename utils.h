@@ -118,7 +118,7 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
         cout << step_size << ' ' << period_length << ' ' << repeats << endl;
         is_tour = true;
         double tree_weight = 0;
-        vector<vector<int>> node = get_v_tree(1, distances, pi);
+        vector<vector<int>> node = get_v_tree(0, distances, pi);
         for (int i = 0; i < n; i++) {
             grad[i] = (int)node[i].size() - 2;
             is_tour &= (grad[i] == 0);

@@ -278,7 +278,9 @@ bool improve(vector<pair<int, int>> &tour){
 
 vector<pair<int, int>> init() {
     cout << "edge transforming" << endl;
-    pi = edge_transform(distances);
+    // pi = edge_transform(distances);
+    for (int i = 0; i < dimension; i++)
+        pi.push_back(0);
 
     for (int i = 0; i < dimension; i++) {
         for (int j = 0; j < dimension; j++) {
@@ -288,7 +290,7 @@ vector<pair<int, int>> init() {
     }
 
     cout << "computing alpha nearness" << endl;
-    get_a_nearness(distances, 1);
+    get_a_nearness(distances, 0);
 
     for (int i = 0; i < dimension; i++) {
         vector<int> nears;
