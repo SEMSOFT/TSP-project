@@ -96,6 +96,7 @@ vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances, vector<
 }
 
 vector<int> edge_transform(vector<vector<double>>& distances) {
+    // inja nabayad distances ro avaz konam. bayad copy begiram azash
     int n = distances.size();
     vector <int> final_pi;
     vector <int> pi;
@@ -239,7 +240,7 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
     }
 }
 
-void get_a_nearness(vector<vector<double>>& distances, int v) {
+vector<vector<double>> get_a_nearness(vector<vector<double>> distances, int v) {
     subtree.clear();
 
     vector<int> pi;
@@ -273,4 +274,6 @@ void get_a_nearness(vector<vector<double>>& distances, int v) {
     }
 
     dfs(node[v][0], v, distances, v, dp, node);
+
+    return distances;
 }

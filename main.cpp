@@ -18,6 +18,24 @@ vector<vector<int>> nearest;
 
 int my_counter;
 
+void save(vector<pair<int, int>>& tour) {
+    cout << "saving the tour" << endl;
+    ofstream output_file("sol_" + file_name);
+    double w = 0;
+    for (int i = 0; i < dimension; i++) {
+        double di = (coords[i].first - coords[tour[i].second].first) * (coords[i].first - coords[tour[i].second].first)
+                  + (coords[i].second - coords[tour[i].second].second) * (coords[i].second - coords[tour[i].second].second);
+        w += sqrt(di);
+    }
+    output_file << w << '\n';
+    int cur = 0;
+    for (int i = 0; i < dimension; i++) {
+        output_file << cur << '\n';
+        cur = tour[cur].second;
+    }
+}
+
+
 void check_tour(int v, bool* mark, vector<vector<int>>& node) {
     mark[v] = true;
     my_counter++;
@@ -212,11 +230,9 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     if(X.size() == 3){
         if(distances[tour[last].first] > distances[tour[last].second]){
             tmp.push_back(tour[last].first);
-//             tmp.push_back(tour[last].second); // IS THIS TRUE?
         }
         else{
             tmp.push_back(tour[last].second);
-//            tmp.push_back(tour[last].second); // IS THIS TRUE?
         }
     } else{
         tmp.push_back(tour[last].first);
@@ -290,7 +306,7 @@ vector<pair<int, int>> init() {
     }
 
     cout << "computing alpha nearness" << endl;
-    get_a_nearness(distances, 0);
+    vector<vector<double>> a_distances = get_a_nearness(distances, 0);
 
     for (int i = 0; i < dimension; i++) {
         vector<int> nears;
@@ -300,7 +316,7 @@ vector<pair<int, int>> init() {
             }
             nears.push_back(j);
             for (int k = (int)nears.size() - 1; k; k--) {
-                if (distances[i][nears[k]] >= distances[i][nears[k - 1]])
+                if (a_distances[i][nears[k]] >= a_distances[i][nears[k - 1]])
                     break;
                 swap(nears[k - 1], nears[k]);
             }
@@ -312,7 +328,7 @@ vector<pair<int, int>> init() {
 
     cout << "constructing the initialize tour" << endl;
 
-    return get_farthest_insertion_tour(distances);
+    return get_farthest_insertion_tour(a_distances);
 }
 
 vector<pair<int, int>> solve(){
@@ -326,23 +342,6 @@ vector<pair<int, int>> solve(){
         improved = improve(tour);
     }
     return tour;
-}
-
-void save(vector<pair<int, int>>& tour) {
-    cout << "saving the tour" << endl;
-    ofstream output_file("sol_" + file_name);
-    double w = 0;
-    for (int i = 0; i < dimension; i++) {
-        double di = (coords[i].first - coords[tour[i].second].first) * (coords[i].first - coords[tour[i].second].first)
-                  + (coords[i].second - coords[tour[i].second].second) * (coords[i].second - coords[tour[i].second].second);
-        w += sqrt(di);
-    }
-    output_file << w << '\n';
-    int cur = 0;
-    for (int i = 0; i < dimension; i++) {
-        output_file << cur << '\n';
-        cur = tour[cur].second;
-    }
 }
 
 int main() {
