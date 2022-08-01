@@ -12,9 +12,10 @@ vector <vector<double>> distances;
 int dimension;
 string file_name, junk;
 string test_name, weight_type;
-vector<int> pi;
+vector<int> pi, order, diff_degree, color;
 vector <pair<double, double>> coords;
-vector<vector<int>> nearest;
+vector<bool> current_mark;
+vector<vector<int>> nearest, edges;
 
 int my_counter;
 
@@ -35,7 +36,6 @@ void save(vector<pair<int, int>>& tour) {
     }
 }
 
-
 void check_tour(int v, bool* mark, vector<vector<int>>& node) {
     mark[v] = true;
     my_counter++;
@@ -46,50 +46,102 @@ void check_tour(int v, bool* mark, vector<vector<int>>& node) {
 }
 
 bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y) {
-    my_counter = 0;
-    vector<vector<int>> node;
-    for (int i = 0; i < dimension; i++) {
-        vector<int> adj;
-        adj.push_back(tour[i].first);
-        adj.push_back(tour[i].second);
-        node.push_back(adj);
-    }
     set<pair<int, int>>::iterator it;
-    for (it = X.begin(); it != X.end(); ++it) {
-        pair <int, int> e = *it;
-        for (int i = 0; i < (int)node[e.first].size(); i++) {
-            if (node[e.first][i] == e.second) {
-                swap(node[e.first][i], node[e.first][node[e.first].size() - 1]);
-                node[e.first].pop_back();
-                break;
-            }
+    vector<int> in_order_vertices;
+    for (it = Y.begin(); it != Y.end(); it++) {
+        diff_degree[(*it).first]++;
+        diff_degree[(*it).second]++;
+        if (!current_mark[(*it).first]) {
+            in_order_vertices.push_back((*it).first);
+            current_mark[(*it).first] = true;
         }
-
-        for (int i = 0; i < (int)node[e.second].size(); i++) {
-            if (node[e.second][i] == e.first) {
-                swap(node[e.second][i], node[e.second][node[e.second].size() - 1]);
-                node[e.second].pop_back();
-                break;
-            }
+        if (!current_mark[(*it).second]) {
+            in_order_vertices.push_back((*it).second);
+            current_mark[(*it).second] = true;
         }
     }
 
-    for (it = Y.begin(); it != Y.end(); ++it) {
-        pair <int, int> e = *it;
-        node[e.first].push_back(e.second);
-        node[e.second].push_back(e.first);
+    for (it = X.begin(); it != X.end(); it++) {
+        diff_degree[(*it).first]--;
+        diff_degree[(*it).second]--;
+        if (!current_mark[(*it).first]) {
+            in_order_vertices.push_back((*it).first);
+            current_mark[(*it).first] = true;
+        }
+        if (!current_mark[(*it).second]) {
+            in_order_vertices.push_back((*it).second);
+            current_mark[(*it).second] = true;
+        }
     }
 
-    for (int i = 0; i < dimension; i++) {
-        if (node[i].size() != 2)
-            return false;
+    bool is_all_zero = true;
+    for (auto i: in_order_vertices) {
+        is_all_zero &= diff_degree[i] == 0;
+        diff_degree[i] = 0;
+        current_mark[i] = false;
     }
 
-    bool mark[dimension];
-    memset(mark, 0, sizeof(mark));
-    check_tour(0, mark, node);
+    if (!is_all_zero)
+        return false;
 
-    return my_counter == dimension;
+    sort(in_order_vertices.begin(), in_order_vertices.end(), [] (const int& lhs, const int& rhs) {
+        return color[lhs] < color[rhs];
+    });
+
+    multiset <pair<int, int>> st;
+    int ssz = (int)in_order_vertices.size();
+    for (int i = 0; i < ssz; i++) {
+        int u = in_order_vertices[i];
+        int v = in_order_vertices[i == (ssz - 1) ? 0 : (i + 1)];
+        if (v < u)
+            swap(u, v);
+        st.insert({u, v});
+    }
+
+    for (it = X.begin(); it != X.end(); it++) {
+        int u = (*it).first;
+        int v = (*it).second;
+        if (v < u)
+            swap(u, v);
+        st.erase(st.find({u, v}));
+    }
+
+    for (it = Y.begin(); it != Y.end(); it++) {
+        int u = (*it).first;
+        int v = (*it).second;
+        if (v < u)
+            swap(u, v);
+        st.insert({u, v});
+    }
+
+    for (it = st.begin(); it != st.end(); it++) {
+        int u = (*it).first;
+        int v = (*it).second;
+        edges[u].push_back(v);
+        edges[v].push_back(u);
+    }
+
+    int last_node = in_order_vertices[0];
+    int tmp = edges[in_order_vertices[0]][1];
+    int cur_cnt = 1;
+    while (tmp != in_order_vertices[0]) {
+        cur_cnt++;
+        int u = edges[tmp][0];
+        int v = edges[tmp][1];
+        if (last_node != u) {
+            last_node = tmp;
+            tmp = u;
+        }
+        else {
+            last_node = tmp;
+            tmp = v;
+        }
+    }
+
+    for (auto i: in_order_vertices)
+        edges[i].clear();
+
+    return cur_cnt == ssz;
 }
 
 void calc_euc_distances() {
@@ -190,7 +242,7 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
     }
 
     int cur = 0;
-    vector<int> order;
+    order.clear();
     order.push_back(0);
 
     bool mark[dimension];
@@ -213,8 +265,10 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
         }
     }
 
-    for (int i = 0; i < dimension; i++)
+    for (int i = 0; i < dimension; i++) {
         tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
+        color[order[i]] = i;
+    }
 
     double sum = 0;
     for(int i = 0; i < (int)tour.size(); i++){
@@ -293,6 +347,14 @@ bool improve(vector<pair<int, int>> &tour){
 }
 
 vector<pair<int, int>> init() {
+    for (int i = 0; i < dimension; i++) {
+        color.push_back(0);
+        diff_degree.push_back(0);
+        vector<int> vec;
+        edges.push_back(vec);
+        current_mark.push_back(false);
+    }
+
     cout << "edge transforming" << endl;
     // pi = edge_transform(distances);
     for (int i = 0; i < dimension; i++)
@@ -327,8 +389,17 @@ vector<pair<int, int>> init() {
     }
 
     cout << "constructing the initialize tour" << endl;
-
-    return get_farthest_insertion_tour(a_distances);
+    vector<pair<int, int>> resp = get_farthest_insertion_tour(a_distances);
+    order.push_back(0);
+    int idx = resp[0].second;
+    while (idx) {
+        order.push_back(idx);
+        idx = resp[idx].second;
+    }
+    for (int i = 0; i < dimension; i++) {
+        color[order[i]] = i;
+    }
+    return resp;
 }
 
 vector<pair<int, int>> solve(){
