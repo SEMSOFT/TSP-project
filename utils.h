@@ -5,12 +5,12 @@ using namespace std;
 
 vector<vector<int>> subtree;
 
-vector<vector<int>> prim(int v, vector<vector<double>> &distances, vector<int> &pi){
+vector<vector<int>> prim(int v, vector<vector<long long>> &distances, vector<int> &pi){
     int n = distances.size();
     vector<vector<int>> mst;
     bool mark[n];
     int par[n];
-    double mat[n];
+    long long mat[n];
 
     for(int i = 0; i < n; i++){
         vector<int> tmp;
@@ -34,7 +34,7 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances, vector<int> &
     }
 
     for(int i = 0; i < n-2; i++){
-        double mn = 1e18;
+        long long mn = 1e18;
         int last = -1;
         for(int j = 0; j < n; j++){
             if(!mark[j] && mat[j] < mn){
@@ -59,9 +59,10 @@ vector<vector<int>> prim(int v, vector<vector<double>> &distances, vector<int> &
 }
 
 
-vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances, vector<int> &pi ) {
+vector<vector<int>> get_v_tree(int v, vector<vector<long long>> &distances, vector<int> &pi ) {
     vector<vector<int>> tree = prim(v, distances, pi);
-    double mn[2] = {1e18, 1e18};
+    long long mn[2];
+    mn[0] = mn[1] = 1e18;
     int ind[2];
     int n = distances.size();
     for(int i = 0; i < n; i++){
@@ -95,7 +96,7 @@ vector<vector<int>> get_v_tree(int v, vector<vector<double>> &distances, vector<
     return tree;
 }
 
-vector<int> edge_transform(vector<vector<double>>& distances) {
+vector<int> edge_transform(vector<vector<long long>>& distances) {
     // inja nabayad distances ro avaz konam. bayad copy begiram azash
     int n = distances.size();
     vector <int> final_pi;
@@ -161,9 +162,9 @@ vector<int> edge_transform(vector<vector<double>>& distances) {
     return pi;
 }
 
-vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<double>>& distances) {
+vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<long long>>& distances) {
     int dimension = distances.size();
-    double dist[dimension];
+    long long dist[dimension];
     bool mark[dimension];
     vector<pair<int, int>> tour;
     int idx = 1;
@@ -179,9 +180,9 @@ vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<double>>& dista
         // idx is choosed
         int cur = 0;
         int who = 0;
-        double w = 1e18;
+        long long w = 1e18;
         while (tour[cur].second != 0) {
-            double cost = distances[cur][idx] + distances[idx][tour[cur].second] - distances[cur][tour[cur].second];
+            long long cost = distances[cur][idx] + distances[idx][tour[cur].second] - distances[cur][tour[cur].second];
             if (cost < w) {
                 who = cur;
                 w = cost;
@@ -207,11 +208,11 @@ vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<double>>& dista
     return tour;
 }
 
-void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* dp, vector<vector<int>>& node) {
+void dfs(int v, int par, vector<vector<long long>>& distances, int vroot, long long* dp, vector<vector<int>>& node) {
     subtree[v].push_back(v);
     for (auto u: node[v]) {
         if (u != par && u != vroot) {
-            double w = distances[v][u];
+            long long w = distances[v][u];
             dfs(u, v, distances, vroot, dp, node);
             dp[u] = w;
             for (auto p: subtree[u]) {
@@ -240,7 +241,7 @@ void dfs(int v, int par, vector<vector<double>>& distances, int vroot, double* d
     }
 }
 
-vector<vector<double>> get_a_nearness(vector<vector<double>> distances, int v) {
+vector<vector<long long>> get_a_nearness(vector<vector<long long>> distances, int v) {
     subtree.clear();
 
     vector<int> pi;
@@ -250,7 +251,7 @@ vector<vector<double>> get_a_nearness(vector<vector<double>> distances, int v) {
     vector<vector<int>> node = get_v_tree(v, distances, pi);
 
     // edges: the edge set of minimum v-tree
-    double mx = -1e18;
+    long long mx = -1e18;
     int dim = distances.size();
 
     // calculate a_nearness for edges of the format (v, .)
@@ -265,7 +266,7 @@ vector<vector<double>> get_a_nearness(vector<vector<double>> distances, int v) {
         distances[i][v] = distances[v][i];
     }
 
-    double dp[dim];
+    long long dp[dim];
     memset(dp, 0, sizeof(dp));
 
     for (int i = 0; i < dim; i++) {
