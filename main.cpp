@@ -134,6 +134,38 @@ bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int,
     return cur_cnt == ssz;
 }
 
+void calc_max_distances() {
+    for (int i = 0; i < dimension; i++) {
+        vector <long long> dists;
+        for (int j = 0; j < i; j++)
+            dists.push_back(distances[j][i]);
+        dists.push_back(0);
+        for (int j = i + 1; j < dimension; j++) {
+            double dx = abs(coords[i].first - coords[j].first);
+            double dy = abs(coords[i].second - coords[j].second);
+
+            dists.push_back((long long) (max(dx, dy) + 0.5));
+        }
+        distances.push_back(dists);
+    }
+}
+
+void calc_manhattan_distances() {
+    for (int i = 0; i < dimension; i++) {
+        vector <long long> dists;
+        for (int j = 0; j < i; j++)
+            dists.push_back(distances[j][i]);
+        dists.push_back(0);
+        for (int j = i + 1; j < dimension; j++) {
+            double dx = abs(coords[i].first - coords[j].first);
+            double dy = abs(coords[i].second - coords[j].second);
+
+            dists.push_back((long long) (dx + dy + 0.5));
+        }
+        distances.push_back(dists);
+    }
+}
+
 void calc_euc_distances(int type) {
     /*
     type =
@@ -230,6 +262,10 @@ void read_file(string file_name) {
         calc_euc_distances(2);
     else if (weight_type == "GEO")
         calc_geo_distances();
+    else if (weight_type == "MAX_2D")
+        calc_max_distances();
+    else if (weight_type == "MAN_2D")
+        calc_manhattan_distances();
 }
 
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y);
