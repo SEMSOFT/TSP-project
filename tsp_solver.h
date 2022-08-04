@@ -1,123 +1,17 @@
-// #pragma GCC optimize("Ofast")
-// #pragma GCC optimize ("unroll-loops")
-// #pragma GCC target("sse,sse2,sse3,ssse3,sse4,popcnt,abm,mmx,avx,tune=native")
-#include <bits/stdc++.h>
 #include "utils.h"
 
-using namespace std;
-
 const int K_NEAREST = 5;
-const double PI = 3.141592;
 
-vector <vector<long long>> distances;
-int dimension;
-string file_name, junk;
-string test_name, weight_type;
+vector <vector<long long>> _distances;
+int _dimension;
 vector<int> pi, order, diff_degree, color, loop_order;
-vector <pair<double, double>> coords;
 vector<bool> current_mark;
 vector<vector<int>> nearest, edges;
 bool ended;
 
 int improvement_counter;
 
-void calc_max_distances() {
-    for (int i = 0; i < dimension; i++) {
-        vector <long long> dists;
-        for (int j = 0; j < i; j++)
-            dists.push_back(distances[j][i]);
-        dists.push_back(0);
-        for (int j = i + 1; j < dimension; j++) {
-            double dx = abs(coords[i].first - coords[j].first);
-            double dy = abs(coords[i].second - coords[j].second);
-
-            dists.push_back((long long) (max(dx, dy) + 0.5));
-        }
-        distances.push_back(dists);
-    }
-}
-
-void calc_manhattan_distances() {
-    for (int i = 0; i < dimension; i++) {
-        vector <long long> dists;
-        for (int j = 0; j < i; j++)
-            dists.push_back(distances[j][i]);
-        dists.push_back(0);
-        for (int j = i + 1; j < dimension; j++) {
-            double dx = abs(coords[i].first - coords[j].first);
-            double dy = abs(coords[i].second - coords[j].second);
-
-            dists.push_back((long long) (dx + dy + 0.5));
-        }
-        distances.push_back(dists);
-    }
-}
-
-void calc_euc_distances(int type) {
-    /*
-    type =
-    0 : EUC_2D
-    1 : CEIL_2D
-    2 : ATT
-    */
-    for (int i = 0; i < dimension; i++) {
-        vector <long long> dists;
-        for (int j = 0; j < i; j++)
-            dists.push_back(distances[j][i]);
-        dists.push_back(0);
-        for (int j = i + 1; j < dimension; j++) {
-            double dist = (coords[i].first - coords[j].first) * (coords[i].first - coords[j].first)
-                            + (coords[i].second - coords[j].second) * (coords[i].second - coords[j].second);
-            if (type == 1)
-                dists.push_back(ceil(sqrt(dist)));
-            else if (type == 0)
-                dists.push_back((long long)(sqrt(dist) + 0.5));
-            else if (type == 2) {
-                dist = sqrt(dist / 10.0);
-                long long dist2 = (long long) (dist + 0.5);
-                if (dist2 < dist)
-                    dist2++;
-                dists.push_back(dist2);
-            }
-        }
-        distances.push_back(dists);
-    }
-}
-
-void calc_geo_distances(double radius = 6378.388) {
-    for (int i = 0; i < dimension; i++) {
-        long long deg = coords[i].first + 0.5;
-        double mn = coords[i].first - deg;
-        double lat1 = PI * (deg + 5.0 * mn / 3.0) / 180.0;
-        deg = coords[i].second + 0.5;
-        mn = coords[i].second - deg;
-        double long1 = PI * (deg + 5.0 * mn / 3.0) / 180.0;
-
-        vector <long long> dists;
-        for (int j = 0; j < i; j++)
-            dists.push_back(distances[j][i]);
-        dists.push_back(0);
-        for (int j = i + 1; j < dimension; j++) {
-            deg = coords[j].first + 0.5;
-            mn = coords[j].first - deg;
-            double lat2 = PI * (deg + 5.0 * mn / 3.0) / 180.0;
-            deg = coords[j].second + 0.5;
-            mn = coords[j].second - deg;
-            double long2 = PI * (deg + 5.0 * mn / 3.0) / 180.0;
-
-            double a = cos(long1 - long2);
-            double b = cos(lat1 - lat2);
-            double c = cos(lat1 + lat2);
-            double dist = radius * acos(0.5 * ((1.0 + a) * b - (1.0 - a) * c)) + 1.0;
-            dists.push_back((long long)(dist + 0.5));
-        }
-        distances.push_back(dists);
-    }
-}
-
 void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){ // not effiecient
-    // cout << "found an improvement!" << endl;
-
     set<pair<int, int>>::iterator it;
     for (it = X.begin(); it != X.end(); ++it) {
         pair <int, int> e = *it;
@@ -163,14 +57,14 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
     }
 
     for (int i = 0; i < (int)tour.size(); i++) {
-        tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
+        tour[order[i]] = {order[(i - 1 + _dimension) % _dimension], order[(i + 1) % _dimension]};
         color[order[i]] = i;
     }
 
     // double sum = 0;
     // for(int i = 0; i < (int)tour.size(); i++){
-        // sum += distances[i][tour[i].first];
-        // sum += distances[i][tour[i].second];
+        // sum += _distances[i][tour[i].first];
+        // sum += _distances[i][tour[i].second];
     // }
     // sum /= 2;
     // if (sum / 65913275LL <= 1.1) {
@@ -189,6 +83,7 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
 bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y) {
     set<pair<int, int>>::iterator it;
     vector<int> in_order_vertices;
+
     for (it = Y.begin(); it != Y.end(); it++) {
         diff_degree[(*it).first]++;
         diff_degree[(*it).second]++;
@@ -216,6 +111,7 @@ bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int,
     }
 
     bool is_all_zero = true;
+
     for (auto i: in_order_vertices) {
         is_all_zero &= diff_degree[i] == 0;
         diff_degree[i] = 0;
@@ -291,7 +187,7 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     for(int t2i1: nearest[last]){
         // if (ended)
             // return false;
-        double Gi = gain - distances[last][t2i1];
+        double Gi = gain - _distances[last][t2i1];
         pair<int, int> p1;
         if (last < t2i1)
             p1 = {last, t2i1};
@@ -312,7 +208,7 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
     vector<int> tmp;
     if(X.size() == 3){
-        if(distances[tour[last].first] > distances[tour[last].second]){
+        if(_distances[tour[last].first] > _distances[tour[last].second]){
             tmp.push_back(tour[last].first);
         }
         else{
@@ -327,7 +223,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
         // if (ended)
             // return false;
         int t2i = tmp[i];
-        double Gi = gain + distances[last][t2i];
+        double Gi = gain + _distances[last][t2i];
         pair<int, int> p1;
         if (last < t2i)
             p1 = {last, t2i};
@@ -345,7 +241,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
                 Y.erase(p2);
                 continue;
             }
-            if(Gi - distances[t2i][t1] > 0){
+            if(Gi - _distances[t2i][t1] > 0){
                 make_new_tour(tour, X, Y);
                 return true;
             }
@@ -381,7 +277,7 @@ bool improve(vector<pair<int, int>> &tour){
                 if (t3 < t2)
                     p2 = {t3, t2};
                 Y.insert(p2);
-                double gain = distances[t1][t2] - distances[t2][t3];
+                double gain = _distances[t1][t2] - _distances[t2][t3];
 
                 if(gain > 0){
                     if(chooseX(tour, t1, t3, gain, X, Y)){
@@ -394,65 +290,16 @@ bool improve(vector<pair<int, int>> &tour){
     return false;
 }
 
-void save(vector<pair<int, int>>& tour) {
-    cout << "saving the tour" << endl;
-    ofstream output_file("sol_" + file_name);
-    long long w = 0;
-    for (int i = 0; i < dimension; i++)
-        w += distances[i][tour[i].first] + distances[i][tour[i].second];
-    w /= 2;
-    cout << "weight: " << w << endl;
-    output_file << w << '\n';
-    int cur = 0;
-    for (int i = 0; i < dimension; i++) {
-        output_file << cur << '\n';
-        cur = tour[cur].second;
-    }
-}
-
-void read_file(string file_name) {
-    cout << "reading the file..." << endl;
-    ifstream input_file(file_name);
-    input_file >> junk;
-    input_file >> test_name;
-    getline(input_file, junk);
-    getline(input_file, junk);
-    getline(input_file, junk);
-    input_file >> junk;
-    input_file >> dimension;
-    input_file >> junk;
-    input_file >> weight_type;
-    input_file >> junk;
-    if (junk != "NODE_COORD_SECTION") {
-        getline(input_file, junk);
-        getline(input_file, junk);
-    }
-    if (junk == "NODE_COORD_SECTION") {
-        coords.resize(dimension);
-        for (int i = 0; i < dimension; i++) {
-            int index;
-            double x, y;
-            input_file >> index >> x >> y;
-            coords[index - 1] = {x, y};
-        }
-    }
-
-    if (weight_type == "EUC_2D")
-        calc_euc_distances(0);
-    else if (weight_type == "CEIL_2D")
-        calc_euc_distances(1);
-    else if (weight_type == "ATT")
-        calc_euc_distances(2);
-    else if (weight_type == "GEO")
-        calc_geo_distances();
-    else if (weight_type == "MAX_2D")
-        calc_max_distances();
-    else if (weight_type == "MAN_2D")
-        calc_manhattan_distances();
-}
-
 vector<pair<int, int>> init() {
-    for (int i = 0; i < dimension; i++) {
+    pi.clear();
+    order.clear();
+    diff_degree.clear();
+    color.clear();
+    loop_order.clear();
+    current_mark.clear();
+    nearest.clear();
+    edges.clear();
+    for (int i = 0; i < _dimension; i++) {
         color.push_back(0);
         diff_degree.push_back(0);
         vector<int> vec;
@@ -461,25 +308,25 @@ vector<pair<int, int>> init() {
         loop_order.push_back(i);
     }
 
-    cout << "edge transforming" << endl;
-    for (int i = 0; i < dimension; i++)
+    // cout << "edge transforming" << endl;
+    for (int i = 0; i < _dimension; i++)
         pi.push_back(0);
-    // pi = edge_transform(distances);
+    // pi = edge_transform(_distances);
     //
     // for (int i = 0; i < dimension; i++) {
     //     for (int j = 0; j < dimension; j++) {
     //         if (i != j)
-    //             distances[i][j] += pi[i] + pi[j];
+    //             _distances[i][j] += pi[i] + pi[j];
     //     }
     // }
 
-    cout << "computing alpha nearness" << endl;
-    vector<vector<long long>> a_distances = get_a_nearness(distances, 0);
-    // vector<vector<long long>>& a_distances = distances;
+    // cout << "computing alpha nearness" << endl;
+    vector<vector<long long>> a_distances = get_a_nearness(_distances, 0);
+    // vector<vector<long long>>& a_distances = _distances;
 
-    for (int i = 0; i < dimension; i++) {
+    for (int i = 0; i < _dimension; i++) {
         vector<int> nears;
-        for (int j = 0; j < dimension; j++) {
+        for (int j = 0; j < _dimension; j++) {
             if (i == j) {
                 continue;
             }
@@ -495,42 +342,33 @@ vector<pair<int, int>> init() {
         nearest.push_back(nears);
     }
 
-    cout << "constructing the initialize tour" << endl;
-    vector<pair<int, int>> resp = get_farthest_insertion_tour(distances);
+    // cout << "constructing the initialize tour" << endl;
+    vector<pair<int, int>> resp = get_farthest_insertion_tour(_distances);
+
     order.push_back(0);
     int idx = resp[0].second;
     while (idx) {
         order.push_back(idx);
         idx = resp[idx].second;
     }
-    for (int i = 0; i < dimension; i++) {
+    for (int i = 0; i < _dimension; i++) {
         color[order[i]] = i;
     }
     return resp;
 }
 
-vector<pair<int, int>> solve(){
+vector<pair<int, int>> solve(vector<vector<long long>>& distances){
+    _distances = distances;
+    _dimension = (int)distances.size();
     bool improved = true;
     vector<pair<int, int>> tour = init();
 
-    cout << "Init finished!" << endl;
-    cout << "start to improve" << endl;
+    // cout << "Init finished!" << endl;
+    // cout << "start to improve" << endl;
 
     while(improved){
         improved = improve(tour);
     }
 
     return tour;
-}
-
-int main() {
-    ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
-    cin >> file_name;
-    long long t = time(NULL);
-    read_file(file_name);
-	vector<pair<int, int>> tour = solve();
-    save(tour);
-    long long tt = time(NULL);
-    cout << tt - t << endl;
-    return 0;
 }

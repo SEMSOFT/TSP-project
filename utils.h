@@ -170,7 +170,7 @@ vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<long long>>& di
     int idx = 1;
     for (int i = 0; i < dimension; i++) {
         dist[i] = distances[0][i];
-        if (dist[i] > dist[idx])
+        if (dist[i] > dist[idx] && i)
             idx = i;
         mark[i] = false;
         tour.push_back({0, 0});
