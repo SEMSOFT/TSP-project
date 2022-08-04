@@ -59,7 +59,7 @@ vector<vector<int>> prim(int v, vector<vector<long long>> &distances, vector<int
 }
 
 
-vector<vector<int>> get_v_tree(int v, vector<vector<long long>> &distances, vector<int> &pi ) {
+vector<vector<int>> get_v_tree(int v, vector<vector<long long>> &distances, vector<int> &pi) {
     vector<vector<int>> tree = prim(v, distances, pi);
     long long mn[2];
     mn[0] = mn[1] = 1e18;
@@ -125,7 +125,7 @@ vector<int> edge_transform(vector<vector<long long>>& distances) {
             grad[i] = (int)node[i].size() - 2;
             is_tour &= (grad[i] == 0);
             for (auto j: node[i]) {
-                tree_weight += distances[i][j];
+                tree_weight += distances[i][j] + pi[i] + pi[j];
             }
         }
         tree_weight /= 2;
@@ -155,9 +155,9 @@ vector<int> edge_transform(vector<vector<long long>>& distances) {
             first_period = false;
         }
     }
-    for (int i = 0; i < n; i++)
-        cout << grad[i] << ' ';
-    cout << endl;
+    // for (int i = 0; i < n; i++)
+        // cout << grad[i] << ' ';
+    // cout << endl;
 
     return pi;
 }
