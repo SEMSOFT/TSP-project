@@ -8,6 +8,11 @@ ALL_tsp
 *.o
 *.obj
 
+*.tsp
+*.opt
+*.tour
+.idea
+
 # Precompiled Headers
 *.gch
 *.pch
