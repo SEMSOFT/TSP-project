@@ -12,12 +12,12 @@ vector <vector<double>> distances;
 int dimension;
 string file_name, junk;
 string test_name, weight_type;
-vector<int> pi, order, diff_degree, color;
+vector<int> pi, order, diff_degree, color, loop_order;
 vector <pair<double, double>> coords;
 vector<bool> current_mark;
 vector<vector<int>> nearest, edges;
 
-int my_counter;
+int improvement_counter;
 
 void save(vector<pair<int, int>>& tour) {
     cout << "saving the tour" << endl;
@@ -34,15 +34,6 @@ void save(vector<pair<int, int>>& tour) {
         output_file << cur << '\n';
         cur = tour[cur].second;
     }
-}
-
-void check_tour(int v, bool* mark, vector<vector<int>>& node) {
-    mark[v] = true;
-    my_counter++;
-    if (!mark[node[v][0]])
-        check_tour(node[v][0], mark, node);
-    if (!mark[node[v][1]])
-        check_tour(node[v][1], mark, node);
 }
 
 bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y) {
@@ -192,8 +183,12 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
 bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
     for(int t2i1: nearest[last]){
         double Gi = gain - distances[last][t2i1];
-        pair<int, int> p1 = {last, t2i1}, p2 = {t2i1, last};
-        if(t2i1 != t1 && !X.contains(p1) && !X.contains(p2) && !Y.contains(p1) && !Y.contains(p2)){
+        pair<int, int> p1;
+        if (last < t2i1)
+            p1 = {last, t2i1};
+        else
+            p1 = {t2i1, last};
+        if(t2i1 != t1 && !X.contains(p1) && !Y.contains(p1)){
             Y.insert(p1);
             bool check = chooseX(tour, t1, t2i1, Gi , X, Y);
             if(check){
@@ -206,78 +201,70 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
 }
 
 void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){ // not effiecient
-    cout << "found an improvement!" << endl;
-    my_counter = 0;
-    vector<vector<int>> node;
-    for (int i = 0; i < dimension; i++) {
-        vector<int> adj;
-        adj.push_back(tour[i].first);
-        adj.push_back(tour[i].second);
-        node.push_back(adj);
-    }
+    // cout << "found an improvement!" << endl;
+
     set<pair<int, int>>::iterator it;
     for (it = X.begin(); it != X.end(); ++it) {
         pair <int, int> e = *it;
-        for (int i = 0; i < (int)node[e.first].size(); i++) {
-            if (node[e.first][i] == e.second) {
-                swap(node[e.first][i], node[e.first][node[e.first].size() - 1]);
-                node[e.first].pop_back();
-                break;
-            }
-        }
+        if (tour[e.first].first == e.second)
+            tour[e.first].first = -1;
+        else
+            tour[e.first].second = -1;
 
-        for (int i = 0; i < (int)node[e.second].size(); i++) {
-            if (node[e.second][i] == e.first) {
-                swap(node[e.second][i], node[e.second][node[e.second].size() - 1]);
-                node[e.second].pop_back();
-                break;
-            }
-        }
+        if (tour[e.second].first == e.first)
+            tour[e.second].first = -1;
+        else
+            tour[e.second].second = -1;
     }
 
     for (it = Y.begin(); it != Y.end(); ++it) {
         pair <int, int> e = *it;
-        node[e.first].push_back(e.second);
-        node[e.second].push_back(e.first);
+        if (tour[e.first].first == -1)
+            tour[e.first].first = e.second;
+        else
+            tour[e.first].second = e.second;
+
+        if (tour[e.second].first == -1)
+            tour[e.second].first = e.first;
+        else
+            tour[e.second].second = e.first;
     }
 
-    int cur = 0;
+    int last = 0;
+    int cur = tour[0].first;
     order.clear();
     order.push_back(0);
 
-    bool mark[dimension];
-    memset(mark, 0, sizeof(mark));
-    mark[0] = true;
-
-    for (int i = 1; i < dimension; i++) {
-        if (!mark[node[cur][0]]) {
-            cur = node[cur][0];
-            mark[cur] = true;
-            order.push_back(cur);
-        }
-        else if (!mark[node[cur][1]]) {
-            cur = node[cur][1];
-            mark[cur] = true;
-            order.push_back(cur);
+    while (cur) {
+        order.push_back(cur);
+        if (tour[cur].first != last) {
+            last = cur;
+            cur = tour[cur].first;
         }
         else {
-            cout << "YOUR CODE HAS BUUUUG!";
+            last = cur;
+            cur = tour[cur].second;
         }
     }
 
-    for (int i = 0; i < dimension; i++) {
+    for (int i = 0; i < (int)tour.size(); i++) {
         tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
         color[order[i]] = i;
     }
 
-    double sum = 0;
-    for(int i = 0; i < (int)tour.size(); i++){
-        sum += distances[i][tour[i].first];
-        sum += distances[i][tour[i].second];
-    }
-    cout << "weight of new tour: " << sum / 2 << endl;
-}
+    // double sum = 0;
+    // for(int i = 0; i < (int)tour.size(); i++){
+    //     sum += distances[i][tour[i].first];
+    //     sum += distances[i][tour[i].second];
+    // }
+    // cout << "weight of new tour: " << sum / 2 << endl;
 
+    // improvement_counter++;
+    // if (improvement_counter == 5) {
+    random_shuffle(loop_order.begin(), loop_order.end());
+        // improvement_counter = 0;
+    // }
+}
 
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
     vector<int> tmp;
@@ -296,14 +283,21 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     for(int i = 0; i < (int)tmp.size(); i++){
         int t2i = tmp[i];
         double Gi = gain + distances[last][t2i];
-        pair<int, int> p1 = {last, t2i}, p2 = {t2i, last};
+        pair<int, int> p1;
+        if (last < t2i)
+            p1 = {last, t2i};
+        else
+            p1 = {t2i, last};
 
-        if(t2i != t1 && !X.contains(p1) && !X.contains(p2) && !Y.contains(p1) && !Y.contains(p2)){
+        if(t2i != t1 && !X.contains(p1) && !Y.contains(p1)){
             X.insert(p1);
-            Y.insert({t2i, t1});
+            pair<int, int> p2 = {t2i, t1};
+            if (t1 < t2i)
+                p2 = {t1, t2i};
+            Y.insert(p2);
             if(!is_tour(tour, X, Y)){
                 X.erase(p1);
-                Y.erase({t2i, t1});
+                Y.erase(p2);
                 continue;
             }
             if(Gi - distances[t2i][t1] > 0){
@@ -311,7 +305,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
                 return true;
             }
             else{
-                Y.erase({t2i, t1});
+                Y.erase(p2);
                 return chooseY(tour, t1, t2i, Gi, X, Y);
             }
         }
@@ -320,19 +314,24 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
 }
 
 bool improve(vector<pair<int, int>> &tour){
-    int n = tour.size();
-    for(int t1 = 0; t1 < n; t1++){
+    for(auto t1: loop_order){
         int tmp[2] = {tour[t1].first, tour[t1].second};
         for(int i = 0; i < 2; i++){
             int t2 = tmp[i];
             set<pair<int, int>> X;
-            X.insert({t1, t2});
+            pair<int, int> p1 = {t1, t2};
+            if (t1 > t2)
+                p1 = {t2, t1};
+            X.insert(p1);
 
-            for(int t3 = 0; t3 < n; t3++){
+            for(auto t3: loop_order){
                 if(t3 == tour[t2].first || t3 == tour[t2].second || t3 == t2)
                     continue;
                 set<pair<int, int>> Y;
-                Y.insert({t2, t3});
+                pair<int, int> p2 = {t2, t3};
+                if (t3 < t2)
+                    p2 = {t3, t2};
+                Y.insert(p2);
                 double gain = distances[t1][t2] - distances[t2][t3];
 
                 if(gain > 0){
@@ -353,6 +352,7 @@ vector<pair<int, int>> init() {
         vector<int> vec;
         edges.push_back(vec);
         current_mark.push_back(false);
+        loop_order.push_back(i);
     }
 
     cout << "edge transforming" << endl;
@@ -418,8 +418,11 @@ vector<pair<int, int>> solve(){
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
+    long long t = time(NULL);
     read_file(file_name);
 	vector<pair<int, int>> tour = solve();
     save(tour);
+    long long tt = time(NULL);
+    cout << tt - t << endl;
     return 0;
 }
