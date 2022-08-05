@@ -106,6 +106,7 @@ We ran our algorithm for testing in the tsplib dataset. Here are the results:
 |   pcb1173    |                  	|     58234        	|       	|       3.836 s         	|
 |   pcb3038    |                  	|     141129        	|       	|       20.177 s         	|
 |   pla7397    |                  	|     24168995        	|       	|       99.168 s         	|
+|   pla33810    |                  	|     67631733        	|       	|       925.686 s         	|
 |   pr76    |                  	|     108159        	|       	|       0.156 s         	|
 |   pr107    |                  	|     44303        	|       	|       0.496 s         	|
 |   pr124    |                  	|     60088        	|       	|       0.249 s         	|
