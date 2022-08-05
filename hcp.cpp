@@ -12,7 +12,7 @@ string test_name;
 vector<vector<long long>> distances;
 int dimension;
 
-int zz = 1;
+int zz = 9000;
 
 void save(vector<pair<int, int>>& tour) {
     // cout << "saving the tour" << endl;
@@ -22,9 +22,8 @@ void save(vector<pair<int, int>>& tour) {
         w += distances[i][tour[i].first] + distances[i][tour[i].second];
     w /= 2;
     string ans = (w <= zz * dimension) ? "YES" : "NO";
-    cout << test_name << ": " << ans << ' ' << w << "\n";
-    // cout << "found: " << ans << endl;
-    // cout << "weight: " << w << endl;
+    cout << test_name << ":\n";
+    cout << "found: " << ans << ' ' << w << endl;
     // output_file << ans << '\n';
     // int cur = 0;
     // for (int i = 0; i < dimension; i++) {
@@ -48,7 +47,7 @@ void read_file(string file_name) {
     for (int i = 0; i < dimension; i++) {
         vector <long long> dist;
         for (int j = 0; j < dimension; j++)
-            dist.push_back(2);
+            dist.push_back(1e4);
         dist[i] = 0;
         distances.push_back(dist);
     }
@@ -69,12 +68,12 @@ void read_file(string file_name) {
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     long long t = time(NULL);
-    for (int i = 1; i <= 10; i++) {
+    for (int i = 1; i <= 20; i++) {
         // cin >> file_name;
         distances.clear();
         file_name = "FHCPCS/graph" + to_string(i) + ".hcp";
         read_file(file_name);
-	    vector<pair<int, int>> tour = solve(distances);
+	    vector<pair<int, int>> tour = solve(distances, false);
         save(tour);
     }
     long long tt = time(NULL);

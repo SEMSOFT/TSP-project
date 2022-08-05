@@ -170,7 +170,7 @@ int main() {
     cin >> file_name;
     long long t = time(NULL);
     read_file(file_name);
-	vector<pair<int, int>> tour = solve(distances);
+	vector<pair<int, int>> tour = solve(distances, true);
     save(tour);
     long long tt = time(NULL);
     cout << tt - t << endl;

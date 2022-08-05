@@ -7,9 +7,6 @@ int _dimension;
 vector<int> pi, order, diff_degree, color, loop_order;
 vector<bool> current_mark;
 vector<vector<int>> nearest, edges;
-bool ended;
-
-int improvement_counter;
 
 void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y){ // not effiecient
     set<pair<int, int>>::iterator it;
@@ -67,21 +64,12 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
         // sum += _distances[i][tour[i].second];
     // }
     // sum /= 2;
-    // if (sum / 65913275LL <= 1.1) {
-        // ended = true;
-        // return;
-    // }
     // cout << "weight of new tour: " << sum / 2 << endl;
 
-    // improvement_counter++;
-    // if (improvement_counter == 5) {
     random_shuffle(loop_order.begin(), loop_order.end());
-        // improvement_counter = 0;
-    // }
 }
 
 bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int, int>> &Y) {
-    // cout << "S" << endl;
     set<pair<int, int>>::iterator it;
     vector<int> in_order_vertices;
 
@@ -185,28 +173,7 @@ bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int,
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y);
 
 bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
-    // if ((int)X.size() == 4) {
-    //     set <pair<int, int>> birdge_Y;
-    //     set <pair<int, int>>::iterator it;
-    //
-    //     vector <int> in_order_vertices;
-    //
-    //     for (it = X.begin(), it != X.end(); it++) {
-    //         in_order_vertices.push_back((*it))
-    //     }
-    //
-    //     sort(in_order_vertices.begin(), in_order_vertices.end(), [] (const int& lhs, const int& rhs) {
-    //         return color[lhs] < color[rhs];
-    //     });
-    //
-    //
-    //
-    //     return true;
-    // }
-
     for(int t2i1: nearest[last]){
-        // if (ended)
-            // return false;
         double Gi = gain - _distances[last][t2i1];
         pair<int, int> p1;
         if (last < t2i1)
@@ -222,6 +189,7 @@ bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
             Y.erase(p1);
         }
     }
+
     return false;
 }
 
@@ -229,23 +197,17 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
     if ((int)X.size() > 5)
         return false;
     vector<int> tmp;
-    // if(X.size() == 3){
-        if(_distances[tour[last].first] > _distances[tour[last].second]){
-            tmp.push_back(tour[last].first);
-            tmp.push_back(tour[last].second);
-        }
-        else{
-            tmp.push_back(tour[last].second);
-            tmp.push_back(tour[last].first);
-        }
-    // } else{
-        // tmp.push_back(tour[last].first);
-        // tmp.push_back(tour[last].second);
-    // }
+
+    if(_distances[tour[last].first] > _distances[tour[last].second]) {
+        tmp.push_back(tour[last].first);
+        tmp.push_back(tour[last].second);
+    }
+    else {
+        tmp.push_back(tour[last].second);
+        tmp.push_back(tour[last].first);
+    }
 
     for(int i = 0; i < 2; i++){
-        // if (ended)
-            // return false;
         int t2i = tmp[i];
         double Gi = gain + _distances[last][t2i];
         pair<int, int> p1;
@@ -271,10 +233,7 @@ bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pa
             }
             else {
                 Y.erase(p2);
-                int aa = (int)X.size();
-                int bb = (int)Y.size();
                 bool result = chooseY(tour, t1, t2i, Gi, X, Y);
-                // return result;
                 if (result)
                     return true;
                 else
@@ -300,9 +259,6 @@ bool improve(vector<pair<int, int>> &tour){
                 if(t3 == tour[t2].first || t3 == tour[t2].second || t3 == t2)
                     continue;
 
-                // if (ended)
-                    // return false;
-
                 set<pair<int, int>> Y;
                 pair<int, int> p2 = {t2, t3};
                 if (t3 < t2)
@@ -321,7 +277,7 @@ bool improve(vector<pair<int, int>> &tour){
     return false;
 }
 
-vector<pair<int, int>> init() {
+vector<pair<int, int>> init(bool doFarthest) {
     pi.clear();
     order.clear();
     diff_degree.clear();
@@ -352,8 +308,8 @@ vector<pair<int, int>> init() {
     // }
 
     // cout << "computing alpha nearness" << endl;
-    // vector<vector<long long>> a_distances = get_a_nearness(_distances, 0);
-    vector<vector<long long>>& a_distances = _distances;
+    vector<vector<long long>> a_distances = get_a_nearness(_distances, 0);
+    // vector<vector<long long>>& a_distances = _distances;
 
     for (int i = 0; i < _dimension; i++) {
         vector<int> nears;
@@ -374,7 +330,11 @@ vector<pair<int, int>> init() {
     }
 
     // cout << "constructing the initialize tour" << endl;
-    vector<pair<int, int>> resp = get_farthest_insertion_tour(_distances);
+    vector<pair<int, int>> resp;
+    if (doFarthest)
+        resp = get_farthest_insertion_tour(_distances);
+    else
+        resp = get_random_tour(_dimension);
 
     order.push_back(0);
     int idx = resp[0].second;
@@ -388,11 +348,11 @@ vector<pair<int, int>> init() {
     return resp;
 }
 
-vector<pair<int, int>> solve(vector<vector<long long>>& distances){
+vector<pair<int, int>> solve(vector<vector<long long>>& distances, bool doFarthest){
     _distances = distances;
     _dimension = (int)distances.size();
     bool improved = true;
-    vector<pair<int, int>> tour = init();
+    vector<pair<int, int>> tour = init(doFarthest);
 
     cout << "Init finished!" << endl;
     // cout << "start to improve" << endl;
