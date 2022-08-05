@@ -8,7 +8,7 @@ We also tried to solve HCP with our algorithm for TSP using reduction, but the r
 
 * `tsp_solver.h`: The main algorithm is implemented in this file. You can use it by passing the distances matrix to its solve method.
 * `utils.h`: Some utils that we need are implemented here, Like a_nearness, farthest-tour-insertion, etc.
-* `tsp.cpp`: This is the main file of the TSP algorithm. It reads the file name as input and will process it and executes tsp_solver.
+* `tsp.cpp`: This is the main file of the TSP algorithm. It reads the file name as input and will process it and executes tsp_solver. It also supports `EUC_2D`, `CEIL_2D`, `ATT`, `GEO`, `MAX_2D` and `MAN_2D` distance types.
 * `hcp.cpp`: This is the main file of the HCP algorithm. It reads the file name as input and will reduce it to TSP and solves it with tsp_solver.
 
 ## Description of the algorithm
