@@ -170,7 +170,7 @@ vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<long long>>& di
     int idx = 1;
     for (int i = 0; i < dimension; i++) {
         dist[i] = distances[0][i];
-        if (dist[i] > dist[idx])
+        if (dist[i] > dist[idx] && i)
             idx = i;
         mark[i] = false;
         tour.push_back({0, 0});
@@ -207,6 +207,20 @@ vector<pair<int, int>> get_farthest_insertion_tour(vector<vector<long long>>& di
     }
     return tour;
 }
+
+vector<pair<int, int>> get_random_tour(int dimension) {
+    vector<pair<int, int>> tour;
+    vector <int> order;
+    for (int i = 0; i < dimension; i++) {
+        order.push_back(i);
+        tour.push_back({0, 0});
+    }
+    random_shuffle(order.begin(), order.end());
+    for (int i = 0; i < dimension; i++)
+        tour[order[i]] = {order[(i - 1 + dimension) % dimension], order[(i + 1) % dimension]};
+    return tour;
+}
+
 
 void dfs(int v, int par, vector<vector<long long>>& distances, int vroot, long long* dp, vector<vector<int>>& node) {
     subtree[v].push_back(v);

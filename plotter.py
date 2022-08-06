@@ -72,5 +72,5 @@ for i in range(dim):
 points[-1, :] = points[0, :]
 
 plt.plot(points[:, 0], points[:, 1])
-plt.scatter(points[:, 0], points[:, 1])
+# plt.scatter(points[:, 0], points[:, 1])
 plt.show()
