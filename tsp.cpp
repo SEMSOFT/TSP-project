@@ -125,17 +125,14 @@ void save(vector<pair<int, int>>& tour) {
 }
 
 void read_file(string file_name) {
-    cout << "reading the file..." << endl;
+        cout << "reading the file..." << endl;
     ifstream input_file(file_name);
-    input_file >> junk;
-    input_file >> test_name;
+    input_file >> junk >> junk >> test_name;
     getline(input_file, junk);
     getline(input_file, junk);
     getline(input_file, junk);
-    input_file >> junk;
-    input_file >> dimension;
-    input_file >> junk;
-    input_file >> weight_type;
+    input_file >> junk >> junk >> dimension;
+    input_file >> junk >> junk >> weight_type;
     input_file >> junk;
     if (junk != "NODE_COORD_SECTION") {
         getline(input_file, junk);
@@ -168,11 +165,12 @@ void read_file(string file_name) {
 int main() {
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     cin >> file_name;
-    long long t = time(NULL);
+    double t = clock();
     read_file(file_name);
 	vector<pair<int, int>> tour = solve(distances, true, false);
     save(tour);
-    long long tt = time(NULL);
-    cout << tt - t << endl;
+    double tt = clock();
+    double diff = (tt - t) / CLOCKS_PER_SEC;
+    cout << diff << endl;
     return 0;
 }
