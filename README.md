@@ -2,7 +2,7 @@
 
 We implemented the Lin-Kernighan Heuristic algorithm with its improvements for solving TSP in C++ as the project of the Combinatorial optimization course at SUT.
 
-We also tried to solve HCP with our algorithm for TSP using reduction, but the results were not good enough.
+We also tried to solve HCP with our algorithm for TSP using reduction.
 
 ## Overview
 
@@ -28,6 +28,18 @@ If we could achieve a better tour by connecting w to u (putting (w, u) to Y), th
 Otherwise, we choose another edge to put in Y. It should be one of the edges of `w`.
 We search for this edge in the 5 nearest neighbors of `w` in the graph and the distances are based on the `alpha nearness` parameter. Then we call chooseX again and so on.
 
+## HCP algorithm
+
+To find a Hamiltonian cycle in a graph with `n` nodes, first, we reduce the graph and then use the mentioned algorithm. We reduce the graph in the following way. 
+
+For every edge, we consider a new one with a weight of 1 and for every pair of vertices without an edge between them, we get an edge with a weight of `n + 1`.
+
+So now we give the reduced graph to our implementation of the Lin-Kernighan Heuristic algorithm with a slight difference.
+Instead of `alpha nearness` parameter, we use the weights and in each effort to find an improvement, we iterate on 5 neighbors of `w` with an edge weight of 1 (if it has less than 5 proper neighbors, we consider all of its proper neighbors).
+
+Then if the algorithm finds a tour with the weight of less than `n + 1`, we will get a Hamiltonian cycle. Otherwise, we can not determine whether our graph has a Hamiltonian cycle or not because the algorithm is heuristic.
+
+Our experiments showed that this could find a Hamiltonian cycle with a high probability in a graph with `O(n * sqrt(n))` edges.
 
 ## Getting Started
 
