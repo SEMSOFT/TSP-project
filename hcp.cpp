@@ -12,11 +12,9 @@ string test_name;
 vector<vector<long long>> distances;
 int dimension;
 
-int zz = 9000;
+int zz = 1;
 
 void save(vector<pair<int, int>>& tour) {
-    // cout << "saving the tour" << endl;
-    // ofstream output_file("sol_" + file_name);
     long long w = 0;
     for (int i = 0; i < dimension; i++)
         w += distances[i][tour[i].first] + distances[i][tour[i].second];
@@ -24,12 +22,13 @@ void save(vector<pair<int, int>>& tour) {
     string ans = (w <= zz * dimension) ? "YES" : "NO";
     cout << test_name << ":\n";
     cout << "found: " << ans << ' ' << w << endl;
-    // output_file << ans << '\n';
-    // int cur = 0;
-    // for (int i = 0; i < dimension; i++) {
-        // output_file << cur << '\n';
-        // cur = tour[cur].second;
-    // }
+    cout << "saving the tour" << endl;
+    ofstream output_file("hcp_" + file_name);
+    int cur = 0;
+    for (int i = 0; i < dimension; i++) {
+        output_file << cur << '\n';
+        cur = tour[cur].second;
+    }
 }
 
 void read_file(string file_name) {
@@ -63,17 +62,25 @@ void read_file(string file_name) {
         distances[x][y] = zz;
         distances[y][x] = zz;
     }
+
+    for(int i = 0; i < (int)(dimension * sqrt(dimension)); i++){
+        int x = rand() % dimension, y = rand() % dimension;
+        if(x == y) continue;
+        distances[x][y] = zz;
+        distances[y][x] = zz;
+    }
 }
 
 int main() {
+    srand(time(0));
     ios_base::sync_with_stdio(false); cin.tie(0); cout.tie(0);
     long long t = time(NULL);
-    for (int i = 1; i <= 20; i++) {
+    for (int i = 200; i <= 1000; i++) {
         // cin >> file_name;
         distances.clear();
-        file_name = "FHCPCS/graph" + to_string(i) + ".hcp";
+        file_name = "C:\\Users\\matin\\Desktop\\TSP-project\\FHCPCS\\graph" + to_string(i) + ".hcp";
         read_file(file_name);
-	    vector<pair<int, int>> tour = solve(distances, false);
+	    vector<pair<int, int>> tour = solve(distances, false, true);
         save(tour);
     }
     long long tt = time(NULL);

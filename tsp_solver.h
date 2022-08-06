@@ -58,13 +58,12 @@ void make_new_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pai
         color[order[i]] = i;
     }
 
-    // double sum = 0;
-    // for(int i = 0; i < (int)tour.size(); i++){
-        // sum += _distances[i][tour[i].first];
-        // sum += _distances[i][tour[i].second];
-    // }
-    // sum /= 2;
-    // cout << "weight of new tour: " << sum / 2 << endl;
+//     double sum = 0;
+//     for(int i = 0; i < (int)tour.size(); i++){
+//         sum += _distances[i][tour[i].first];
+//         sum += _distances[i][tour[i].second];
+//     }
+//     cout << "weight of new tour: " << sum / 2 << endl;
 
     random_shuffle(loop_order.begin(), loop_order.end());
 }
@@ -173,7 +172,10 @@ bool is_tour(vector<pair<int, int>> &tour, set<pair<int, int>> &X, set<pair<int,
 bool chooseX(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y);
 
 bool chooseY(vector<pair<int, int>> &tour, int t1, int last, double gain, set<pair<int, int>> &X, set<pair<int, int>> &Y){
+    int cnt = 0;
     for(int t2i1: nearest[last]){
+        if(cnt++ >= K_NEAREST)
+            break;
         double Gi = gain - _distances[last][t2i1];
         pair<int, int> p1;
         if (last < t2i1)
@@ -277,7 +279,7 @@ bool improve(vector<pair<int, int>> &tour){
     return false;
 }
 
-vector<pair<int, int>> init(bool doFarthest) {
+vector<pair<int, int>> init(bool doFarthest, bool isHcp) {
     pi.clear();
     order.clear();
     diff_degree.clear();
@@ -308,25 +310,41 @@ vector<pair<int, int>> init(bool doFarthest) {
     // }
 
     // cout << "computing alpha nearness" << endl;
-    vector<vector<long long>> a_distances = get_a_nearness(_distances, 0);
-    // vector<vector<long long>>& a_distances = _distances;
-
-    for (int i = 0; i < _dimension; i++) {
-        vector<int> nears;
-        for (int j = 0; j < _dimension; j++) {
-            if (i == j) {
-                continue;
+    if(isHcp){
+        for (int i = 0; i < _dimension; i++) {
+            vector<int> nears;
+            for (int j = 0; j < _dimension; j++) {
+                if (i == j) {
+                    continue;
+                }
+                if(_distances[i][j] == 1){
+                    nears.push_back(j);
+                }
+                nearest.push_back(nears);
             }
-            nears.push_back(j);
-            for (int k = (int)nears.size() - 1; k; k--) {
-                if (a_distances[i][nears[k]] >= a_distances[i][nears[k - 1]])
-                    break;
-                swap(nears[k - 1], nears[k]);
-            }
-            if (nears.size() > K_NEAREST)
-                nears.pop_back();
         }
-        nearest.push_back(nears);
+    }
+    else{
+        vector<vector<long long>> a_distances = get_a_nearness(_distances, 0);
+        for (int i = 0; i < _dimension; i++) {
+            vector<int> nears;
+            for (int j = 0; j < _dimension; j++) {
+                if (i == j) {
+                    continue;
+                }
+
+                nears.push_back(j);
+
+                for (int k = (int)nears.size() - 1; k; k--) {
+                    if (a_distances[i][nears[k]] >= a_distances[i][nears[k - 1]])
+                        break;
+                    swap(nears[k - 1], nears[k]);
+                }
+                if (nears.size() > K_NEAREST)
+                    nears.pop_back();
+                }
+                nearest.push_back(nears);
+        }
     }
 
     // cout << "constructing the initialize tour" << endl;
@@ -348,16 +366,30 @@ vector<pair<int, int>> init(bool doFarthest) {
     return resp;
 }
 
-vector<pair<int, int>> solve(vector<vector<long long>>& distances, bool doFarthest){
+vector<pair<int, int>> solve(vector<vector<long long>>& distances, bool doFarthest, bool isHcp){
     _distances = distances;
     _dimension = (int)distances.size();
     bool improved = true;
-    vector<pair<int, int>> tour = init(doFarthest);
+    vector<pair<int, int>> tour = init(doFarthest, isHcp);
 
     cout << "Init finished!" << endl;
     // cout << "start to improve" << endl;
 
     while(improved){
+        if(isHcp){
+            int sum = 0;
+            for(int i = 0; i < _dimension; i++){
+                sum += _distances[i][tour[i].first];
+                sum += _distances[i][tour[i].second];
+            }
+            if(sum / 2 == _dimension) break;
+            for(int i = 0; i < _dimension; i++){
+                unsigned seed = std::chrono::system_clock::now()
+                        .time_since_epoch()
+                        .count();
+                shuffle (nearest[i].begin(), nearest[i].end(), std::default_random_engine(seed));
+            }
+        }
         improved = improve(tour);
     }
 

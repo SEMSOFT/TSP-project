@@ -1,6 +1,7 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.11)
 project(TSP_project)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 11)
 
-add_executable(TSP_project main.cpp)
+#add_executable(TSP_project tsp.cpp)
+add_executable(TSP_project hcp.cpp)
